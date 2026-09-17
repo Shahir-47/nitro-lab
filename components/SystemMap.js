@@ -45,18 +45,18 @@ const NODES = [
     info: "Runs DNS for shahirahmed.com and terminates HTTPS. Every *.shahirahmed.com hostname is mapped to the tunnel, so visitors only ever see Cloudflare's IP addresses." },
   { x: 20, y: 345, w: 180, access: "external", title: "GitHub", sub: "source and webhooks", icon: GitBranch,
     info: "Pushing to a project's main branch sends a webhook to Coolify. Coolify then pulls the code and deploys a new container." },
-  { x: 20, y: 620, w: 180, access: "external", title: "My phone", sub: "Tailscale client", icon: Smartphone,
+  { x: 20, y: 620, w: 180, access: "external", dy: 34, title: "My phone", sub: "Tailscale client", icon: Smartphone,
     info: "Backs up photos to Immich over Tailscale from anywhere." },
-  { x: 20, y: 710, w: 180, access: "external", title: "My laptop", sub: "Tailscale client", icon: Laptop,
+  { x: 20, y: 710, w: 180, access: "external", dy: 34, title: "My laptop", sub: "Tailscale client", icon: Laptop,
     info: `Used for SSH and for the Coolify, Uptime Kuma and Paperless dashboards. All of it goes through Tailscale to "${tailnetHost}".` },
 
-  { x: 1035, y: 190, w: 190, access: "external", title: "Amazon S3", sub: "object storage", icon: Archive,
+  { x: 1035, y: 190, w: 190, access: "external", dy: 22, title: "Amazon S3", sub: "object storage", icon: Archive,
     info: "Stores the original event photos uploaded to GrabPic." },
-  { x: 1035, y: 250, w: 190, access: "external", title: "Amazon SQS", sub: "message queue", icon: ListOrdered,
+  { x: 1035, y: 250, w: 190, access: "external", dy: 22, title: "Amazon SQS", sub: "message queue", icon: ListOrdered,
     info: "Holds face detection jobs. The worker on the home server polls this queue, so it never needs a public address." },
-  { x: 1035, y: 325, w: 190, access: "external", title: "Supabase", sub: "Postgres with pgvector", icon: Database,
+  { x: 1035, y: 325, w: 190, access: "external", dy: 22, title: "Supabase", sub: "Postgres with pgvector", icon: Database,
     info: "Stores face embeddings and runs the nearest-neighbor search that matches a selfie to photos." },
-  { x: 1035, y: 525, w: 190, access: "external", title: "Spotify Web API", sub: "OAuth, listening data", icon: Music,
+  { x: 1035, y: 525, w: 190, access: "external", dy: 22, title: "Spotify Web API", sub: "OAuth, listening data", icon: Music,
     info: "Queue Up signs users in with Spotify and pulls their listening history to compute matches." },
 
   // host
@@ -67,44 +67,49 @@ const NODES = [
   { x: 350, y: 380, w: 165, title: "Coolify", sub: "CI/CD and deploys", icon: Rocket, access: "private",
     match: platform.containers.filter((c) => c.match !== "coolify-proxy").map((c) => c.match),
     info: "Self-hosted deployment platform. It builds images with BuildKit, runs the containers, stores environment variables and configures Traefik." },
-  { x: 350, y: 640, w: 165, title: "Tailscale", sub: "WireGuard mesh VPN", icon: ShieldCheck, access: "host",
+  { x: 350, y: 640, w: 165, dy: 34, title: "Tailscale", sub: "WireGuard mesh VPN", icon: ShieldCheck, access: "host",
     info: `Only devices I have signed in and approved can join my tailnet. They reach the server as "${tailnetHost}" for SSH, dashboards and private apps. None of these have a public hostname.` },
 
   // GrabPic
-  { x: 565, y: 204, title: "REST API", sub: "Spring Boot", icon: Server, access: "public", match: [find(grab.containers, "REST")],
+  { x: 565, y: 204, dy: 22, title: "REST API", sub: "Spring Boot", icon: Server, access: "public", match: [find(grab.containers, "REST")],
     info: "grabpic-api.shahirahmed.com. Handles uploads and auth with JWTs. It rate limits each IP through Redis and hands photos off to S3 and SQS." },
-  { x: 565, y: 264, title: "Redis", sub: "rate limiting", icon: Zap, access: "internal", match: [find(grab.containers, "Redis")],
+  { x: 565, y: 264, dy: 22, title: "Redis", sub: "rate limiting", icon: Zap, access: "internal", match: [find(grab.containers, "Redis")],
     info: "Counts requests per IP with a limit of 60 per minute. It publishes no ports and sits on Coolify's private Docker network." },
-  { x: 770, y: 264, title: "Face detection", sub: "background worker", icon: ScanFace, access: "internal", match: [find(grab.containers, "worker")],
+  { x: 770, y: 264, dy: 22, title: "Face detection", sub: "background worker", icon: ScanFace, access: "internal", match: [find(grab.containers, "worker")],
     info: "Polls SQS for new photos and detects the faces in each one. It then writes the face embeddings to Supabase. It has no public hostname." },
-  { x: 565, y: 324, title: "AI search", sub: "selfie matching", icon: Search, access: "public", match: [find(grab.containers, "AI search")],
+  { x: 565, y: 324, dy: 22, title: "AI search", sub: "selfie matching", icon: Search, access: "public", match: [find(grab.containers, "AI search")],
     info: "grabpic-ai.shahirahmed.com. Turns a guest's selfie into an embedding and finds the closest matches in Supabase." },
   // PaperPulse
-  { x: 565, y: 429, title: "REST API", sub: "FastAPI", icon: Server, access: "public", match: [find(paper.containers, "FastAPI")],
+  { x: 565, y: 429, dy: 22, title: "REST API", sub: "FastAPI", icon: Server, access: "public", match: [find(paper.containers, "FastAPI")],
     info: "paperpulse-api.shahirahmed.com. Serves recommendations and answers questions with retrieval-augmented generation. A nightly job ranks new papers for each user." },
-  { x: 770, y: 429, title: "Neo4j", sub: "graph database", icon: Database, access: "internal", match: [find(paper.containers, "Neo4j")],
+  { x: 770, y: 429, dy: 22, title: "Neo4j", sub: "graph database", icon: Database, access: "internal", match: [find(paper.containers, "Neo4j")],
     info: "Stores papers, authors and topics as a graph for retrieval. The API connects over the Bolt protocol on port 7687." },
   // Queue Up
-  { x: 565, y: 536, title: "API + WebSockets", sub: "Spring Boot", icon: Server, access: "public", match: [find(queue.containers, "API")],
+  { x: 565, y: 536, dy: 22, title: "API + WebSockets", sub: "Spring Boot", icon: Server, access: "public", match: [find(queue.containers, "API")],
     info: "queue-up.shahirahmed.com. Computes matches from Spotify data and relays chat messages over WebSockets." },
-  { x: 770, y: 572, h: 40, title: "PostgreSQL 17", icon: Database, access: "internal", match: [find(queue.containers, "PostgreSQL")],
+  { x: 770, y: 572, h: 40, dy: 22, title: "PostgreSQL 17", icon: Database, access: "internal", match: [find(queue.containers, "PostgreSQL")],
     info: "Stores users, matches and chat history. It publishes no ports." },
   // private apps
-  { x: 565, y: 672, title: "Immich", sub: `photo backup, :2283`, icon: Images, access: "private", match: svc("Immich"),
+  { x: 565, y: 672, dy: 34, title: "Immich", sub: `photo backup, :2283`, icon: Images, access: "private", match: svc("Immich"),
     info: `Self-hosted Google Photos alternative at ${tailnetHost}:2283. Face recognition runs on the GPU through CUDA.` },
-  { x: 770, y: 672, title: "Paperless-ngx", sub: "document OCR, :8010", icon: FileText, access: "private", match: svc("Paperless-ngx"),
+  { x: 770, y: 672, dy: 34, title: "Paperless-ngx", sub: "document OCR, :8010", icon: FileText, access: "private", match: svc("Paperless-ngx"),
     info: `Scanned document archive with OCR and full-text search at ${tailnetHost}:8010.` },
-  { x: 565, y: 726, title: "Uptime Kuma", sub: "monitoring, :3002", icon: Activity, access: "private", match: svc("Uptime Kuma"),
+  { x: 565, y: 726, dy: 34, title: "Uptime Kuma", sub: "monitoring, :3002", icon: Activity, access: "private", match: svc("Uptime Kuma"),
     info: `Checks every app on a schedule and alerts me when one goes down. Dashboard at ${tailnetHost}:3002.` },
-  { x: 770, y: 726, title: "Samba + Homepage", sub: "file share, dashboard", icon: FolderOpen, access: "private", match: svc("Samba and Homepage"),
+  { x: 770, y: 726, dy: 34, title: "Samba + Homepage", sub: "file share, dashboard", icon: FolderOpen, access: "private", match: svc("Samba and Homepage"),
     info: `A network drive at smb://${tailnetHost} and a start page at ${tailnetHost}:3000 that links to every service.` },
 ];
 
 const GROUPS = [
-  { name: "GrabPic", note: grab.tagline, x: 550, y: 172, w: 430, h: 210 },
-  { name: "PaperPulse", note: paper.tagline, x: 550, y: 397, w: 430, h: 92 },
-  { name: "Queue Up", note: queue.tagline, x: 550, y: 504, w: 430, h: 118 },
-  { name: "Private apps", note: "reached over Tailscale", x: 550, y: 637, w: 430, h: 145 },
+  { name: "GrabPic", note: grab.tagline, x: 556, y: 194, w: 418, h: 210 },
+  { name: "PaperPulse", note: paper.tagline, x: 556, y: 419, w: 418, h: 92 },
+  { name: "Queue Up", note: queue.tagline, x: 556, y: 526, w: 418, h: 118 },
+];
+
+// the two kinds of software on the server
+const SECTIONS = [
+  { title: "Personal projects", note: "public APIs for apps I built", kind: "projects", x: 543, y: 164, w: 444, h: 490 },
+  { title: "Self-hosted apps", note: "for my own use, private over Tailscale", kind: "selfhosted", x: 543, y: 671, w: 444, h: 150 },
 ];
 
 // [points, label, [x, y, anchor], style]  style: "dashed" | "bus" | "private" | "private-bus"
@@ -114,27 +119,27 @@ const EDGES = [
   ["200,258 325,258 325,205 350,205", "tunnel", [206, 252, "start"]],
   ["432,228 432,280", "HTTP :80", [440, 258, "start"]],
   ["515,303 535,303"],
-  ["535,227 535,559", null, null, "bus"],
-  ["535,227 565,227"],
-  ["535,347 565,347"],
-  ["535,452 565,452"],
-  ["535,559 565,559"],
+  ["535,227 535,559", null, null, "bus", 22],
+  ["535,227 565,227", null, null, null, 22],
+  ["535,347 565,347", null, null, null, 22],
+  ["535,452 565,452", null, null, null, 22],
+  ["535,559 565,559", null, null, null, 22],
   ["200,368 325,368 325,403 350,403", "webhook", [206, 362, "start"]],
   ["432,380 432,326", "writes routes", [440, 357, "start"], "dashed"],
-  ["200,643 325,643 325,656 350,656", "WireGuard", [206, 637, "start"], "private"],
-  ["200,733 338,733 338,672 350,672", "WireGuard", [206, 727, "start"], "private"],
-  ["515,663 542,663 542,749", null, null, "private-bus"],
-  ["542,695 565,695", null, null, "private"],
-  ["542,749 565,749", null, null, "private"],
-  ["662,250 662,264"],
-  ["760,213 1035,213", "stores photos", [900, 208]],
-  ["760,236 1012,236 1012,266 1035,266", "enqueues jobs", [900, 231]],
-  ["1035,284 965,284", "polls", [1000, 279]],
-  ["867,310 867,340 1035,340", "writes embeddings", [950, 335]],
-  ["760,358 1035,358", "vector search", [900, 372]],
-  ["760,452 770,452"],
-  ["662,582 662,592 770,592"],
-  ["760,548 1035,548", "OAuth, listening data", [900, 543]],
+  ["200,643 325,643 325,656 350,656", "WireGuard", [206, 637, "start"], "private", 34],
+  ["200,733 338,733 338,672 350,672", "WireGuard", [206, 727, "start"], "private", 34],
+  ["515,663 542,663 542,749", null, null, "private-bus", 34],
+  ["542,695 565,695", null, null, "private", 34],
+  ["542,749 565,749", null, null, "private", 34],
+  ["662,250 662,264", null, null, null, 22],
+  ["760,213 1035,213", "stores photos", [900, 208], null, 22],
+  ["760,236 1012,236 1012,266 1035,266", "enqueues jobs", [900, 231], null, 22],
+  ["1035,284 965,284", "polls", [1000, 279], null, 22],
+  ["867,310 867,340 1035,340", "writes embeddings", [950, 335], null, 22],
+  ["760,358 1035,358", "vector search", [900, 372], null, 22],
+  ["760,452 770,452", null, null, null, 22],
+  ["662,582 662,592 770,592", null, null, null, 22],
+  ["760,548 1035,548", "OAuth, listening data", [900, 543], null, 22],
 ];
 
 const STATUS_COLOR = { up: "var(--up)", down: "var(--down)", partial: "var(--warn)", unknown: "var(--faint)" };
@@ -154,7 +159,7 @@ function Node({ n, data, onHover }) {
   return (
     <g
       className={`node access-${n.access ?? "external"}`}
-      transform={`translate(${n.x} ${n.y})`}
+      transform={`translate(${n.x} ${n.y + (n.dy ?? 0)})`}
       tabIndex={0}
       role="button"
       aria-label={`${n.title}. ${n.info}`}
@@ -210,7 +215,7 @@ export default function SystemMap() {
     <div className="map-wrap" ref={wrapRef}>
       <div className="map-scroll">
         <div className="map-inner">
-          <svg viewBox="0 0 1240 825" className="map" aria-label="Architecture diagram of the home server">
+          <svg viewBox="0 0 1240 860" className="map" aria-label="Architecture diagram of the home server">
             <defs>
               <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L8,4 L0,8 z" className="arrowhead" />
@@ -221,13 +226,13 @@ export default function SystemMap() {
             </defs>
 
             {/* home network */}
-            <rect x="250" y="100" width="750" height="710" rx="14" className="home" />
+            <rect x="250" y="100" width="750" height="745" rx="14" className="home" />
             <text x="268" y="89" className="home-label">
               Home network
             </text>
 
             {/* server */}
-            <rect x="330" y="115" width="660" height="680" rx="10" className="server" />
+            <rect x="330" y="115" width="660" height="715" rx="10" className="server" />
             <path d="M330,157 H990" className="server-rule" />
             <Server x={348} y={127} width={18} height={18} className="node-icon" />
             <text x="374" y="135" className="server-name">
@@ -256,13 +261,23 @@ export default function SystemMap() {
 
             {/* home router: a translucent band the connections pass through */}
             <g className="router">
-              <rect x="270" y="176" width="36" height="570" rx="8" />
-              <text x="288" y="766" textAnchor="middle">
+              <rect x="270" y="176" width="36" height="604" rx="8" />
+              <text x="288" y="800" textAnchor="middle">
                 <tspan x="288" className="router-title">Router</tspan>
                 <tspan x="288" dy="15">no inbound</tspan>
                 <tspan x="288" dy="13">ports open</tspan>
               </text>
             </g>
+
+            {SECTIONS.map((sec) => (
+              <g key={sec.title}>
+                <rect x={sec.x} y={sec.y} width={sec.w} height={sec.h} rx="10" className={`section-box ${sec.kind}`} />
+                <text x={sec.x + 12} y={sec.y + 20} className={`section-label ${sec.kind}`}>
+                  <tspan className="section-title">{sec.title}</tspan>
+                  <tspan dx="8">{sec.note}</tspan>
+                </text>
+              </g>
+            ))}
 
             {GROUPS.map((g) => (
               <g key={g.name}>
@@ -274,13 +289,14 @@ export default function SystemMap() {
               </g>
             ))}
 
-            {EDGES.map(([pts, , , style], i) => {
+            {EDGES.map(([pts, , , style, dy], i) => {
               const priv = style?.startsWith("private");
               const noArrow = style === "bus" || style === "private-bus";
               return (
                 <polyline
                   key={i}
                   points={pts}
+                  transform={dy ? `translate(0 ${dy})` : undefined}
                   className={`edge ${style === "dashed" ? "dashed" : ""} ${priv ? "private" : ""}`}
                   markerEnd={noArrow ? undefined : priv ? "url(#arrow-private)" : "url(#arrow)"}
                 />
@@ -292,11 +308,11 @@ export default function SystemMap() {
             ))}
 
             {/* labels go last so nothing covers them */}
-            {EDGES.filter((e) => e[1]).map(([, label, at, style]) => (
+            {EDGES.filter((e) => e[1]).map(([, label, at, style, dy]) => (
               <text
                 key={label + at[0] + at[1]}
                 x={at[0]}
-                y={at[1]}
+                y={at[1] + (dy ?? 0)}
                 textAnchor={at[2] ?? "middle"}
                 className={`edge-label ${style?.startsWith("private") ? "private" : ""}`}
               >
