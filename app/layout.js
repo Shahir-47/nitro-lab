@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "nitro, Shahir Ahmed's home server",
-  description: "The old laptop that runs my project backends, with live stats from the machine.",
+  title: "Shahir's Home Server",
+  description: "A self-hosted Linux server that runs Shahir Ahmed's project backends, with live system metrics and architecture.",
 };
 
 export default function RootLayout({ children }) {

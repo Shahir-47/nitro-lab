@@ -23,6 +23,7 @@ export function LiveProvider({ children }) {
         const point = {
           t,
           cpu: d.cpuPct,
+          cpuT: d.cpuTemp ?? null,
           mem: d.memUsed / d.memTotal,
           gpuT: d.gpu?.temp ?? null,
           gpuU: d.gpu?.util ?? null,

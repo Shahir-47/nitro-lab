@@ -26,13 +26,13 @@ import {
   Split,
   Zap,
 } from "lucide-react";
-import { useLive, containerState, shortStatus, gb, ACCESS } from "@/components/Live";
-import { projects, services, platform, allowlist, tailnetHost } from "@/lib/site";
+import { useLive, containerState, shortStatus, gb } from "@/components/Live";
+import Tooltip from "@/components/Tooltip";
+import { projects, services, platform, tailnetHost } from "@/lib/site";
 
 const [grab, paper, queue] = projects;
 const find = (list, label) => list.find((c) => c.label.includes(label)).match;
 const svc = (name) => services.find((s) => s.name === name).containers.map((c) => c.match);
-const byMatch = Object.fromEntries(allowlist.map((c) => [c.match, c]));
 
 // positions use the 1240 x 825 viewBox
 const NODES = [
@@ -179,49 +179,6 @@ function Node({ n, data, onHover }) {
   );
 }
 
-const TIP_W = 320;
-
-function Tooltip({ hover, data, wrap }) {
-  if (!hover || !wrap) return null;
-  const { n, el } = hover;
-  const box = wrap.getBoundingClientRect();
-  const r = el.getBoundingClientRect();
-  const center = r.left - box.left + r.width / 2;
-  const left = Math.min(Math.max(center, TIP_W / 2 + 8), box.width - TIP_W / 2 - 8);
-  const below = r.bottom - box.top < box.height * 0.55;
-  const style = below
-    ? { left, top: r.bottom - box.top + 8 }
-    : { left, bottom: box.bottom - r.top + 8 };
-
-  return (
-    <div className="tip" role="tooltip" style={style}>
-      <div className="tip-head">
-        <strong>{n.title}</strong>
-        {n.access && <span className={`badge ${n.access}`}>{ACCESS[n.access].short}</span>}
-      </div>
-      <p>{n.info}</p>
-      {n.match && (
-        <ul>
-          {n.match.map((m) => {
-            const c = byMatch[m];
-            const st = data?.containers?.[m];
-            return (
-              <li key={m}>
-                <span className={st?.state === "running" ? "ok" : st ? "bad" : ""}>{st ? st.status : "checking"}</span>
-                <span>{c.label}</span>
-                <code>
-                  {c.image}
-                  {c.port ? `, port ${c.port}` : ""}
-                </code>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export default function SystemMap() {
   const { data, history, lost } = useLive();
   const [hover, setHover] = useState(null);
@@ -230,10 +187,10 @@ export default function SystemMap() {
   // CPU over the last 2 minutes, drawn as a sparkline in the server header
   const recent = history.slice(-60).filter((p) => p.cpu != null);
   const spark = recent
-    .map((p, i) => `${i ? "L" : "M"}${(686 - ((recent.length - 1 - i) / 59) * 70).toFixed(1)},${(145 - (Math.min(p.cpu, 100) / 100) * 18).toFixed(1)}`)
+    .map((p, i) => `${i ? "L" : "M"}${(648 - ((recent.length - 1 - i) / 59) * 62).toFixed(1)},${(145 - (Math.min(p.cpu, 100) / 100) * 18).toFixed(1)}`)
     .join("");
   const cpu = data?.cpuPct ?? null;
-  const ram = data ? `${gb(data.memUsed)} of ${gb(data.memTotal)}` : null;
+  const ram = data ? `${(data.memUsed / 1024 ** 3).toFixed(1)}/${gb(data.memTotal)}` : null;
   const gpu = data?.gpu ? `${data.gpu.temp}°C` : null;
 
   return (
@@ -264,26 +221,32 @@ export default function SystemMap() {
               Home server
             </text>
             <text x="374" y="150" className="server-sub">
-              Ubuntu Server 26.04
+              Acer Nitro 5 laptop
             </text>
 
             {/* live readout */}
             <g className={`live-readout ${data && !lost ? "on" : "off"}`}>
-              <Radio x={560} y={128} width={14} height={14} className="live-icon" />
-              <text x="578" y="140" className="live-word">
+              <Radio x={532} y={128} width={14} height={14} className="live-icon" />
+              <text x="550" y="140" className="live-word">
                 {data && !lost ? "Live" : lost ? "Offline" : "…"}
               </text>
-              <rect x="612" y="125" width="78" height="22" rx="3" className="spark-bg" />
+              <rect x="582" y="125" width="70" height="22" rx="3" className="spark-bg" />
               {spark && <path d={spark} className="spark" />}
               <title>CPU usage over the last 2 minutes</title>
             </g>
-            <text x="758" y="140" textAnchor="end" className="readout">
+            <text x="772" y="140" textAnchor="end" className="readout">
               CPU{" "}
               <tspan key={`c${cpu}`} className="flash">
                 {cpu ?? "–"}%
               </tspan>
+              {data?.cpuTemp != null && (
+                <tspan key={`ct${data.cpuTemp}`} className="flash">
+                  {" "}
+                  {data.cpuTemp}°C
+                </tspan>
+              )}
             </text>
-            <text x="908" y="140" textAnchor="end" className="readout">
+            <text x="896" y="140" textAnchor="end" className="readout">
               RAM{" "}
               <tspan key={`r${ram}`} className="flash">
                 {ram ?? "–"}

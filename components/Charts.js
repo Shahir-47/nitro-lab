@@ -87,6 +87,17 @@ export default function Charts() {
           color="var(--c-cpu)"
         />
         <Chart
+          title="CPU temp"
+          icon={Thermometer}
+          value={data?.cpuTemp}
+          unit="°C"
+          points={series("cpuT")}
+          min={30}
+          max={100}
+          ticks={[50, 70, 90]}
+          color="var(--c-ctemp)"
+        />
+        <Chart
           title="Memory"
           icon={MemoryStick}
           value={data ? Math.round((data.memUsed / data.memTotal) * 100) : null}
@@ -98,7 +109,7 @@ export default function Charts() {
           color="var(--c-mem)"
         />
         <Chart
-          title="GPU temperature"
+          title="GPU temp"
           icon={Thermometer}
           value={data?.gpu?.temp}
           unit="°C"

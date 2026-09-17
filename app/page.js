@@ -32,6 +32,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { LiveProvider } from "@/components/Live";
+import Mark from "@/components/Mark";
 import { LiveBadge, LocalNotice, Vitals, Inventory } from "@/components/LiveBits";
 import SystemMap from "@/components/SystemMap";
 import Charts from "@/components/Charts";
@@ -71,7 +72,7 @@ export default function Home() {
   ];
   const privateRows = [
     ["SSH", `ssh shahir@${tailnetHost}`],
-    ["Coolify dashboard", `http://${tailnetHost}:8000`],
+    ["Coolify dashboard", `${tailnetHost}:8000`],
     ...services
       .flatMap((s) => s.containers)
       .filter((c) => c.access === "private")
@@ -83,8 +84,8 @@ export default function Home() {
       <header className="top">
         <div className="wide top-inner">
           <a href="#" className="brand">
-            <img src="/mark.svg" alt="" width="24" height="24" />
-            Home Server
+            <Mark size={26} />
+            Shahir's Home Server
           </a>
           <nav aria-label="Links">
             <LiveBadge />
