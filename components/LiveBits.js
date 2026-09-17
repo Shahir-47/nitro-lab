@@ -32,7 +32,7 @@ export function LiveBadge() {
   }
   return (
     <span className="live-badge">
-      <Radio size={15} aria-hidden="true" /> Live, updates every 2 seconds
+      <Radio size={15} aria-hidden="true" /> Live from the server
     </span>
   );
 }

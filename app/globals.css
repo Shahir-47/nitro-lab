@@ -85,7 +85,6 @@ svg { flex-shrink: 0; }
   z-index: 10;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
 }
 .top-inner { display: flex; justify-content: space-between; align-items: center; gap: 1rem; height: 58px; }
 .brand { color: var(--ink); display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
@@ -196,8 +195,9 @@ p { margin: 0 0 1rem; }
 @media (prefers-reduced-motion: reduce) {
   .flash { animation: none; }
 }
-.readout { font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
-.readout tspan { fill: var(--ink); font-weight: 600; }
+.readout-divider { stroke: var(--line); }
+.stat-label { font-size: 9.5px; fill: var(--muted); }
+.stat-value { font-size: 13px; font-weight: 700; fill: var(--ink); font-variant-numeric: tabular-nums; }
 .group { fill: var(--soft); stroke: var(--line); }
 .group-label { font-size: 12px; fill: var(--muted); }
 .group-name { font-size: 13px; font-weight: 700; fill: var(--ink); }

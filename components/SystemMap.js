@@ -179,6 +179,20 @@ function Node({ n, data, onHover }) {
   );
 }
 
+// small two-line stat in the server header; the value flashes when it changes
+function Stat({ x, label, value }) {
+  return (
+    <g>
+      <text x={x} y="130" className="stat-label">
+        {label}
+      </text>
+      <text key={value} x={x} y="148" className="stat-value flash">
+        {value}
+      </text>
+    </g>
+  );
+}
+
 export default function SystemMap() {
   const { data, history, lost } = useLive();
   const [hover, setHover] = useState(null);
@@ -187,11 +201,10 @@ export default function SystemMap() {
   // CPU over the last 2 minutes, drawn as a sparkline in the server header
   const recent = history.slice(-60).filter((p) => p.cpu != null);
   const spark = recent
-    .map((p, i) => `${i ? "L" : "M"}${(648 - ((recent.length - 1 - i) / 59) * 62).toFixed(1)},${(145 - (Math.min(p.cpu, 100) / 100) * 18).toFixed(1)}`)
+    .map((p, i) => `${i ? "L" : "M"}${(628 - ((recent.length - 1 - i) / 59) * 72).toFixed(1)},${(145 - (Math.min(p.cpu, 100) / 100) * 18).toFixed(1)}`)
     .join("");
   const cpu = data?.cpuPct ?? null;
   const ram = data ? `${(data.memUsed / 1024 ** 3).toFixed(1)}/${gb(data.memTotal)}` : null;
-  const gpu = data?.gpu ? `${data.gpu.temp}°C` : null;
 
   return (
     <div className="map-wrap" ref={wrapRef}>
@@ -226,40 +239,20 @@ export default function SystemMap() {
 
             {/* live readout */}
             <g className={`live-readout ${data && !lost ? "on" : "off"}`}>
-              <Radio x={532} y={128} width={14} height={14} className="live-icon" />
-              <text x="550" y="140" className="live-word">
+              <Radio x={500} y={129} width={14} height={14} className="live-icon" />
+              <text x="518" y="141" className="live-word">
                 {data && !lost ? "Live" : lost ? "Offline" : "…"}
               </text>
-              <rect x="582" y="125" width="70" height="22" rx="3" className="spark-bg" />
+              <rect x="552" y="125" width="80" height="22" rx="3" className="spark-bg" />
               {spark && <path d={spark} className="spark" />}
               <title>CPU usage over the last 2 minutes</title>
             </g>
-            <text x="772" y="140" textAnchor="end" className="readout">
-              CPU{" "}
-              <tspan key={`c${cpu}`} className="flash">
-                {cpu ?? "–"}%
-              </tspan>
-              {data?.cpuTemp != null && (
-                <tspan key={`ct${data.cpuTemp}`} className="flash">
-                  {" "}
-                  {data.cpuTemp}°C
-                </tspan>
-              )}
-            </text>
-            <text x="896" y="140" textAnchor="end" className="readout">
-              RAM{" "}
-              <tspan key={`r${ram}`} className="flash">
-                {ram ?? "–"}
-              </tspan>
-            </text>
-            {gpu && (
-              <text x="976" y="140" textAnchor="end" className="readout">
-                GPU{" "}
-                <tspan key={`g${gpu}`} className="flash">
-                  {gpu}
-                </tspan>
-              </text>
-            )}
+            <line x1="648" y1="124" x2="648" y2="148" className="readout-divider" />
+            <Stat x={662} label="CPU" value={cpu != null ? `${cpu}%` : "–"} />
+            <Stat x={710} label="CPU temp" value={data?.cpuTemp != null ? `${data.cpuTemp}°C` : "–"} />
+            <Stat x={772} label="RAM" value={ram ?? "–"} />
+            {data?.gpu && <Stat x={876} label="GPU" value={`${data.gpu.util}%`} />}
+            {data?.gpu && <Stat x={922} label="GPU temp" value={`${data.gpu.temp}°C`} />}
 
             {/* home router: a translucent band the connections pass through */}
             <g className="router">
